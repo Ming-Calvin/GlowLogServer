@@ -1,0 +1,31 @@
+-- 包含数据库表创建和初始数据填充的SQL脚本
+CREATE DATABASE IF NOT EXISTS growlog;
+USE growlog;
+
+CREATE TABLE Users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    userId INT NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    username VARCHAR(255) NOT NULL
+);
+
+
+CREATE TABLE EmailVerifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    code VARCHAR(6) NOT NULL,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expiresAt DATETIME NOT NULL
+);
+
+CREATE TABLE journal (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    userId INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    mood VARCHAR(50),
+    content TEXT,
+    imageUrl VARCHAR(255),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES Users(id)
+);
