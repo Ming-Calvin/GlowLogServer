@@ -2,11 +2,13 @@ const Router = require('koa-router')
 const router = new Router()
 const bcrypt = require('bcrypt')
 const jwt= require('jsonwebtoken')
-const { User, UserInfo } = require('../models')
+const { User, UserInfo, VerificationCode, Sequelize } = require('../models')
 const { validate, validations } = require('../middlewares/validation')
 const Joi = require('joi')
 const crypto = require('crypto')
 const nodemailer = require('nodemailer')
+const moment = require('moment')
+const { Op } = Sequelize;
 
 const SECRET_KEY = 'secret_key'
 
@@ -24,37 +26,40 @@ const transporter = nodemailer.createTransport({
   }
 })
 
-// Send verification code
-router.post('/send-code', async (ctx) => {
-  const { email } = ctx.request.body;
+const sendCodeSchema = Joi.object({
+  email: validations.email
+})
 
-  // Generate a verification code and set an expiration time (e.g., 10 minutes)
-  const code = generateVerificationCode();
-  const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+// Send verification code
+router.post('/send-code',validate(sendCodeSchema), async (ctx) => {
+  const { email } = ctx.request.validatedBody;
+
+  // Generate a verification code and set an expiration time
+  const code = generateVerificationCode()
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes from now
 
   try {
-    // Save the verification code to the database
-    await VerificationCode.create({ email, code, expiresAt });
+    // Save the verification code to database
+    await VerificationCode.create({ email, code, expiresAt })
 
     // Send the verification code via email
     await transporter.sendMail({
-      from: 'your_email@gmail.com',
+      from: 'grow_log_app@163.com',
       to: email,
-      subject: 'Your Verification Code',
-      text: `Your verification code is ${code}`
-    });
+      subject: 'Register Verification Code',
+      text: `verification code is ${code}`
+    })
 
-    ctx.body = { message: 'Verification code sent' };
-  } catch (error) {
-    ctx.status = 500;
-    ctx.body = { message: 'Failed to send verification code', error };
+    ctx.body = { message: 'verification code sent'}
+  } catch(error) {
+    ctx.status = 500
+    ctx.body = { message: 'failed', error }
   }
-});
-
-
+})
 
 // define the schema for registration validating using custom attributes
 const registrationSchema = Joi.object({
+  code: validations.require,
   username: validations.requiredString,
   email: validations.email,
   password: validations.password,
@@ -65,27 +70,76 @@ const registrationSchema = Joi.object({
 
 // Register a new User
 router.post('/register', validate(registrationSchema),async(ctx) => {
-  const { username, email, password, firstName, lastName, age, isMember } = ctx.request.validatedBody;
+  const { username, email, password, firstName, lastName, age, isMember, code } = ctx.request.validatedBody;
 
+  // check if the verification code is valid
   try {
-    // check if the email is already registered
+    const verification = await VerificationCode.findOne({
+      where: {
+        email,
+        code,
+        expiresAt: {
+          [Op.gt]: new Date() // check that the code is still valid
+        }
+      },
+      order: [['createdAt', 'DESC']] // ensure we get the latest code
+    })
+
+    console.log(verification, 'verification')
+    if(!verification) {
+      ctx.status = 400;
+      ctx.body = { message: 'Invalid or expired verification code'}
+      return
+    }
+  } catch (e) {
+    console.log(e, 'verification code')
+  }
+
+  // check if the email is already registered
+  try {
     const existingUser = await User.findOne({ where: { email } })
     if(existingUser) {
       ctx.status = 400
       ctx.body = { message: 'Email is already registered' }
       return
     }
+  } catch (e) {
+    console.log(e, 'email already registered')
+  }
 
+  try {
     const hashedPassword = await bcrypt.hash(password, 10)
     const user = await User.create({ username, email, password: hashedPassword, isMember })
     await UserInfo.create({ firstName, lastName, age, userId: user.id })
+
     ctx.status = 200
-    ctx.body = { message: 'User registration successs' }
+    ctx.body = { message: 'User registration success' }
 
   } catch (error) {
+
     ctx.status = 400
     ctx.body = { message: 'User registration failed', error }
+
   }
 })
+
+const loginSchema = Joi.object({
+  email: validations.email,
+  password: validations.requiredString,
+})
+
+
+router.post('/login', validate(loginSchema), async (ctx) => {
+  const { email, password } = ctx.request.validatedBody
+
+  try {
+    const password = await User.findOne({ where: { email } })
+    console.log(password, 'password')
+
+  } catch (e) {
+    console.log(e)
+  }
+})
+
 
 module.exports = router;

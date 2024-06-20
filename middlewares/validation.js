@@ -15,6 +15,7 @@ const validate = (schema) => {
 }
 
 const validations = {
+  require: Joi.required(),
   requiredString: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().regex(new RegExp('^(?![a-zA-Z]+$)(?!\\d+$)(?![^\\da-zA-Z\\s]+$).{8,16}$')).required().error(new Error('Password must contain at least one digit, one uppercase letter, one lowercase letter, and be at least 8 characters long.')),
