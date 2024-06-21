@@ -10,9 +10,23 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User.init({
-    username: DataTypes.STRING,
-    email: DataTypes.STRING,
-    password: DataTypes.STRING,
+    userId: {
+      type: DataTypes.INTEGER,
+      unique: true,
+    },
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     isMember: {
       type: DataTypes.BOOLEAN,
       defaultValue: false // Default value set to false
@@ -20,6 +34,12 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User',
+    hook: {
+      beforeCreate: async (user, options) => {
+        const lastUser = await User.findOne( { order: [['userId', 'DESC']] });
+        user.userId = lastUser ? lastUser.userId + 1 : 100000
+      }
+    }
   });
   return User;
 };

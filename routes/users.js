@@ -10,7 +10,7 @@ const nodemailer = require('nodemailer')
 const moment = require('moment')
 const { Op } = Sequelize;
 
-const SECRET_KEY = 'secret_key'
+const SECRET_KEY = crypto.randomBytes(64).toString('hex')
 
 // Function to generate a random verification code
 const generateVerificationCode = () => {
@@ -85,7 +85,6 @@ router.post('/register', validate(registrationSchema),async(ctx) => {
       order: [['createdAt', 'DESC']] // ensure we get the latest code
     })
 
-    console.log(verification, 'verification')
     if(!verification) {
       ctx.status = 400;
       ctx.body = { message: 'Invalid or expired verification code'}
@@ -98,6 +97,7 @@ router.post('/register', validate(registrationSchema),async(ctx) => {
   // check if the email is already registered
   try {
     const existingUser = await User.findOne({ where: { email } })
+
     if(existingUser) {
       ctx.status = 400
       ctx.body = { message: 'Email is already registered' }
@@ -110,7 +110,9 @@ router.post('/register', validate(registrationSchema),async(ctx) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10)
     const user = await User.create({ username, email, password: hashedPassword, isMember })
-    await UserInfo.create({ firstName, lastName, age, userId: user.id })
+
+
+    await UserInfo.create({ firstName, lastName, age, userId: user.userId })
 
     ctx.status = 200
     ctx.body = { message: 'User registration success' }
@@ -133,13 +135,32 @@ router.post('/login', validate(loginSchema), async (ctx) => {
   const { email, password } = ctx.request.validatedBody
 
   try {
-    const password = await User.findOne({ where: { email } })
-    console.log(password, 'password')
+    // Find user by email
+    const user = await User.findOne({ where: { email } })
+    // Check if user exists and password matches
+    if(!user || !await bcrypt.compare(password, user.password)) {
+      ctx.status = 401;
+      ctx.body = { massage: 'Invalid email or password' }
+      return
+    }
 
-  } catch (e) {
-    console.log(e)
+    // Generate JWT token
+    const token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: '1h' })
+
+    ctx.body = { message: 'Login successful', token }
+  } catch (error) {
+    ctx.status = 400
+    ctx.body = { message: 'Login failed', error}
   }
 })
+
+const userSchema = Joi.object({
+
+})
+
+router.get('/user/:id', validate())
+
+
 
 
 module.exports = router;
