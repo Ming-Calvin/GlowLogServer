@@ -9,8 +9,10 @@ const crypto = require('crypto')
 const nodemailer = require('nodemailer')
 const moment = require('moment')
 const { Op } = Sequelize;
+const authMiddleware = require('../middlewares/auth')
+require('dotenv').config();
 
-const SECRET_KEY = crypto.randomBytes(64).toString('hex')
+const SECRET_KEY = process.env.SECRET_KEY
 
 // Function to generate a random verification code
 const generateVerificationCode = () => {
@@ -137,6 +139,7 @@ router.post('/login', validate(loginSchema), async (ctx) => {
   try {
     // Find user by email
     const user = await User.findOne({ where: { email } })
+
     // Check if user exists and password matches
     if(!user || !await bcrypt.compare(password, user.password)) {
       ctx.status = 401;
@@ -144,8 +147,11 @@ router.post('/login', validate(loginSchema), async (ctx) => {
       return
     }
 
+    console.log(SECRET_KEY, 'SECRET_KEY')
+
+
     // Generate JWT token
-    const token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: '1h' })
+    const token = jwt.sign({ userId: user.userId }, SECRET_KEY, { expiresIn: '1h' })
 
     ctx.body = { message: 'Login successful', token }
   } catch (error) {
@@ -154,13 +160,29 @@ router.post('/login', validate(loginSchema), async (ctx) => {
   }
 })
 
-const userSchema = Joi.object({
 
+router.get('/userInfo', authMiddleware, async (ctx) =>{
+  const userId = ctx.state.user.userId
+
+  try {
+    // Find user by ID and include associated information
+    const user = await User.findByPk(userId, {
+      include: { model: UserInfo, as: 'info'}
+    })
+
+    // check if user exists
+    if(!user) {
+      ctx.status = 404
+      ctx.body = { message: 'User not found' }
+      return
+    }
+
+    ctx.body = user
+  } catch (error) {
+    ctx.status = 400;
+    ctx.body = { message: 'Failed to fetch user information', error }
+  }
 })
-
-router.get('/user/:id', validate())
-
-
 
 
 module.exports = router;
