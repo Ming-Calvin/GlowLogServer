@@ -1,6 +1,7 @@
 const Router = require('koa-router');
-const router = new Router();
+const router = new Router()
 const usersRouter = require('./users');
+const whiteNoise = require('./whitenoise')
 
 // example route
 router.get('/', async (ctx) => {
@@ -9,5 +10,8 @@ router.get('/', async (ctx) => {
 
 // Use users routes
 router.use(usersRouter.routes())
+
+// Use whiteNoise routes
+router.use(whiteNoise.routes())
 
 module.exports = router
