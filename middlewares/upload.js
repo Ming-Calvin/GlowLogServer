@@ -1,22 +1,20 @@
 const path = require('path')
-const fs = require('fs')
-const { koaBody } = require('koa-body')
+const multer = require('koa-multer')
 
-//  Get the parent directory of _dirname
-const parentDir = path.resolve(__dirname, '..')
-const uploadDir = path.join(parentDir, 'uploads')
+//  define the upload directory
+const uploadDir = path.join(__dirname, '../uploads')
 
-if(!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir)
-}
-
-const upload = koaBody({
-  multiple: true,
-  formidable: {
-    uploadDir,
-    keepExtensions: true,
-    maxFileSize: 200 * 1024 * 1024  // maximum file size in bytes
+// Configure storage options for multer
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir)
+  },
+  filename: function (req, file, cb) {
+    cb(null, path.parse(file.originalname).name + '-' + Date.now() + path.extname(file.originalname) )
   }
 })
+
+// create the multer instance with the storage configuration
+const upload = multer({ storage: storage })
 
 module.exports = upload

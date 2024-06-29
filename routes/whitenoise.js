@@ -2,7 +2,7 @@ const Router = require('koa-router')
 const router = new Router()
 const { WhiteNoise } = require('../models')
 const authMiddleware = require('../middlewares/auth')
-const upload = require('../middlewares/upload')
+const upload  = require('../middlewares/upload')
 const path = require('path')
 
 // get the list of available white noises
@@ -17,23 +17,23 @@ router.get('/white-noises', authMiddleware, async (ctx) => {
 })
 
 // upload a new white noise file
-router.post('/white-noises/upload', authMiddleware, upload, async (ctx) => {
-
-  ctx.body = ctx
-
+router.post('/white-noises/upload', authMiddleware, upload.single('file'), async (ctx) => {
 
   try {
-    const { files } = ctx.request.body
+    const { file } = ctx.req
+    const { name } = ctx.req.body
 
-    return
-
-    const file = files.file
+    if(!file) {
+      ctx.staus = 400
+      ctx.body = { message: "No file uploaded" }
+      return
+    }
 
     const fileName = path.basename(file.path)
-    const fileUrl = `${ ctx.origin }/uploads/$fileName`
+    const fileUrl = `${ ctx.origin }/files/${ fileName }`
 
     const newWhiteNoise = await WhiteNoise.create({
-      name: ctx.request.body.name,
+      name: name,
       url: fileUrl
     })
 
@@ -44,8 +44,32 @@ router.post('/white-noises/upload', authMiddleware, upload, async (ctx) => {
   }
 })
 
+// Get a white noise file by ID
+router.get('white-noise/:id', authMiddleware, async (ctx) => {
+  try {
+    const id = ctx.params.id
+    const whiteNoise = await WhiteNoise.findByPk(id)
 
-router.get('/getNoise/:id',authMiddleware, async (ctx) => {
+    if(!whiteNoise) {
+      ctx.staus = 404
+      ctx.body = { message: 'White noise file not found' }
+      return
+    }
+
+    ctx.body = {
+      name: whiteNoise.name,
+      url: whiteNoise.url
+    }
+  } catch (error) {
+    ctx.staus = 500
+    ctx.body = {
+      message: 'An error occurred while fetching white noise file',
+      error
+    }
+  }
+})
+
+router.get('/getWhiteNoise/:id',authMiddleware, async (ctx) => {
   try {
     const whiteNoiseId = ctx.params.id
     const whiteNoise = await WhiteNoise.findByPk(whiteNoiseId)
