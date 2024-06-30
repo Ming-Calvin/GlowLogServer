@@ -65,9 +65,9 @@ const registrationSchema = Joi.object({
   username: validations.requiredString,
   email: validations.email,
   password: validations.password,
-  firstName: validations.requiredString,
-  lastName: validations.requiredString,
-  age: validations.age,
+  // firstName: validations.requiredString,
+  // lastName: validations.requiredString,
+  // age: validations.age,
 })
 
 // Register a new User
