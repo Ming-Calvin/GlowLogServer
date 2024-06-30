@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // One-to-One relationship with UserInfo
       User.hasOne(models.UserInfo, { foreignKey: 'userId', as: 'info' })
+      User.hasMany(models.Journal, { foreignKey: 'userId', as: 'journals' });
     }
   }
   User.init({

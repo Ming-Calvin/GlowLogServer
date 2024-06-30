@@ -147,9 +147,6 @@ router.post('/login', validate(loginSchema), async (ctx) => {
       return
     }
 
-    console.log(SECRET_KEY, 'SECRET_KEY')
-
-
     // Generate JWT token
     const token = jwt.sign({ userId: user.userId }, SECRET_KEY, { expiresIn: '200h' })
 
