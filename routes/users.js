@@ -52,7 +52,7 @@ router.post('/send-code',validate(sendCodeSchema), async (ctx) => {
       text: `verification code is ${code}`
     })
 
-    ctx.body = { message: 'verification code sent'}
+    ctx.body = { code:200, message: 'verification code sent'}
   } catch(error) {
     ctx.status = 500
     ctx.body = { message: 'failed', error }
@@ -117,7 +117,7 @@ router.post('/register', validate(registrationSchema),async(ctx) => {
     await UserInfo.create({ firstName, lastName, age, userId: user.userId })
 
     ctx.status = 200
-    ctx.body = { message: 'User registration success' }
+    ctx.body = { code: 200, message: 'User registration success' }
 
   } catch (error) {
 
@@ -150,7 +150,7 @@ router.post('/login', validate(loginSchema), async (ctx) => {
     // Generate JWT token
     const token = jwt.sign({ userId: user.userId }, SECRET_KEY, { expiresIn: '200h' })
 
-    ctx.body = { message: 'Login successful', token }
+    ctx.body = { code:200, message: 'Login successful', token }
   } catch (error) {
     ctx.status = 400
     ctx.body = { message: 'Login failed', error}
@@ -174,7 +174,7 @@ router.get('/userInfo', authMiddleware, async (ctx) =>{
       return
     }
 
-    ctx.body = user
+    ctx.body = { code: 200, user }
   } catch (error) {
     ctx.status = 400;
     ctx.body = { message: 'Failed to fetch user information', error }

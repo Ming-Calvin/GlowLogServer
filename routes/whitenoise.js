@@ -9,7 +9,7 @@ const path = require('path')
 router.get('/white-noises', authMiddleware, async (ctx) => {
   try {
     const whiteNoises = await WhiteNoise.findAll();
-    ctx.body = { message: whiteNoises, code: 200 }
+    ctx.body = { whiteNoises, code: 200 }
   } catch (error) {
     ctx.staus = 500;
     ctx.body = { message: 'An error occurred while fetching white noise list', error}
@@ -17,7 +17,7 @@ router.get('/white-noises', authMiddleware, async (ctx) => {
 })
 
 // upload a new white noise file
-router.post('/white-noises/upload', authMiddleware, upload.single('file'), async (ctx) => {
+router.post('/white-noises/upload', upload.single('file'), async (ctx) => {
 
   try {
     const { file } = ctx.req
@@ -41,31 +41,6 @@ router.post('/white-noises/upload', authMiddleware, upload.single('file'), async
   } catch (error) {
     ctx.staus = 500
     ctx.body = { message: 'An error occurred while uploading white noise', error }
-  }
-})
-
-// Get a white noise file by ID
-router.get('white-noise/:id', authMiddleware, async (ctx) => {
-  try {
-    const id = ctx.params.id
-    const whiteNoise = await WhiteNoise.findByPk(id)
-
-    if(!whiteNoise) {
-      ctx.staus = 404
-      ctx.body = { message: 'White noise file not found' }
-      return
-    }
-
-    ctx.body = {
-      name: whiteNoise.name,
-      url: whiteNoise.url
-    }
-  } catch (error) {
-    ctx.staus = 500
-    ctx.body = {
-      message: 'An error occurred while fetching white noise file',
-      error
-    }
   }
 })
 
