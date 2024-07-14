@@ -27,7 +27,7 @@ router.post('/journals', authMiddleware, async (ctx) => {
     });
 
     ctx.status = 201;
-    ctx.body = newJournal;
+    ctx.body = { code: 200, newJournal };
   } catch (error) {
     ctx.status = 500;
     ctx.body = { message: 'An error occurred while creating the journal entry.', error };
