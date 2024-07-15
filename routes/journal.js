@@ -26,8 +26,8 @@ router.post('/journals', authMiddleware, async (ctx) => {
       mood
     });
 
-    ctx.status = 201;
-    ctx.body = { code: 200, newJournal };
+    ctx.status = 200;
+    ctx.body = { code: 200, data: newJournal}
   } catch (error) {
     ctx.status = 500;
     ctx.body = { message: 'An error occurred while creating the journal entry.', error };
@@ -51,7 +51,7 @@ router.get('/journals', authMiddleware, async (ctx) => {
 
     const journals = await Journal.findAll({ where });
 
-    ctx.body = journals;
+    ctx.body = { code: 200, data: journals};
   } catch (error) {
     ctx.status = 500;
     ctx.body = { message: 'An error occurred while fetching the journal entries.', error };
