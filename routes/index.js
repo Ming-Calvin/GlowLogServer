@@ -3,6 +3,7 @@ const router = new Router()
 const usersRouter = require('./users');
 const whiteNoise = require('./whitenoise')
 const journal = require('./journal')
+const dialog = require('./dialog')
 
 // example route
 router.get('/', async (ctx) => {
@@ -18,6 +19,8 @@ router.use(whiteNoise.routes())
 // Use journal routes
 router.use(journal.routes())
 
+// Use dialog routes
+router.use(dialog.routes())
 
 
 
