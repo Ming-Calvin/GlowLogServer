@@ -1,6 +1,6 @@
 const Router = require('koa-router');
 const router = new Router()
-const usersRouter = require('./users');
+const usersRouter = require('./user');
 const whiteNoise = require('./whitenoise')
 const journal = require('./journal')
 const dialog = require('./dialog')
