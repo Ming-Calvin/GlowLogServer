@@ -9,4 +9,10 @@ const addDiarySchema = Joi.object({
   content: validations.require
 })
 
-module.exports = { addDiarySchema }
+// 根据月份查询当月有日记的日期参数
+const getDiaryDatesByMonthSchema = Joi.object({
+  date: validations.date,
+})
+
+
+module.exports = { addDiarySchema , getDiaryDatesByMonthSchema}

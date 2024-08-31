@@ -30,7 +30,9 @@ const validations = {
   // 10~100
   mediumString: Joi.string().min(10).max(100).required(),
   // 255以内
-  longString: Joi.string().max(255).required()
+  longString: Joi.string().max(255).required(),
+  // 时间
+  date: Joi.date().required(),
 }
 
 module.exports = { validate, validations }
