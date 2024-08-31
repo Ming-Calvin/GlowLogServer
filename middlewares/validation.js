@@ -1,4 +1,6 @@
 const Joi = require('joi')
+// 返回函数
+const {failureResponse} = require("../until/responseData");
 
 const validate = (schema) => {
   return async (ctx, next) => {
@@ -6,7 +8,7 @@ const validate = (schema) => {
 
     if(error) {
       ctx.status = 400;
-      ctx.body = { message: error.message }
+      ctx.body = failureResponse(error.message, {}, 400)
     } else {
       ctx.request.validatedBody = value
       await next();

@@ -1,6 +1,9 @@
 const Router = require('koa-router');
-const {successResponse} = require("./responseData");
+const {successResponse} = require("../until/responseData");
 const router = new Router()
+const loginRouter = require("./Login");
+
+
 // const usersRouter = require('./user');
 // const whiteNoise = require('./whitenoise')
 // const journal = require('./journal')
@@ -8,10 +11,11 @@ const router = new Router()
 
 // example route
 router.get('/', async (ctx) => {
-  ctx.body = successResponse({
-    message: 'Connect Successfully'
-  })
+  ctx.body = successResponse('Connect Successfully')
 })
+
+// 登录路由
+router.use(loginRouter.routes())
 
 // // Use users routes
 // router.use(usersRouter.routes())

@@ -1,6 +1,15 @@
 'use strict';
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-  const VerificationCode = sequelize.define('VerificationCode', {
+  class VerificationCode extends Model {
+    // 如果需要关联其他模型，可以在这里定义
+    static associate(models) {
+      // 示例：VerificationCode.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+    }
+  }
+
+  VerificationCode.init({
     code_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -25,8 +34,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     }
   }, {
+    sequelize,
+    modelName: 'VerificationCode',
     tableName: 'verification_codes',
-    timestamps: false
+    timestamps: false,
   });
 
   return VerificationCode;
