@@ -125,7 +125,7 @@ router.post('/loginUser', validate(loginSchema), async (ctx) => {
     }
 
     // 创建Token
-    const token = jwt.sign({ userId: user.userId }, SECRET_KEY, { expiresIn: '24h' })
+    const token = jwt.sign({ userId: user.user_id }, SECRET_KEY, { expiresIn: '24h' })
 
     ctx.body = successResponse('Login successful', { token })
   } catch (error) {

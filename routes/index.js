@@ -2,6 +2,7 @@ const Router = require('koa-router');
 const {successResponse} = require("../until/responseData");
 const router = new Router()
 const loginRouter = require("./Login");
+const diaryRouter = require("./Diary");
 
 
 // const usersRouter = require('./user');
@@ -16,6 +17,8 @@ router.get('/', async (ctx) => {
 
 // 登录路由
 router.use(loginRouter.routes())
+// 日志路由
+router.use(diaryRouter.routes())
 
 // // Use users routes
 // router.use(usersRouter.routes())

@@ -27,13 +27,17 @@ module.exports = (sequelize, DataTypes) => {
         key: 'user_id',
       },
     },
+    author_name: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+    },
     title: {
       type: DataTypes.STRING(255),
       allowNull: false,
     },
     mood: {
       type: DataTypes.STRING(50),
-      allowNull: true,
+      allowNull: false,
     },
     content: {
       type: DataTypes.TEXT,
