@@ -143,14 +143,36 @@ router.get('/getDiaryEntriesByDate', authMiddleware, validate(getDiaryEntriesByD
         }
       },
       // 只提取created_at
-      attributes: ['title'],
+      attributes: ['title', 'diary_id'],
     })
 
-    const title =  diaryDates.map(diary => diary.title)
+    const diary =  diaryDates.map(diary => {
+      return {
+        title: diary.title,
+        diaryId: diary.diary_id
+      }
+    })
 
-    console.log(title)
+    ctx.body = successResponse('success', { diary });
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = failureResponse('An error occurred while fetching the journal entries.')
+  }
+});
 
-    ctx.body = successResponse('success', { title });
+// 根据日志ID查询日记内容接口
+router.get('/getDiaryEntryById/:id', authMiddleware, async (ctx) => {
+  try {
+    const id = ctx.params.id;
+    const diary = await Diary.findByPk(id);
+
+    if (!diary) {
+      ctx.status = 404;
+      ctx.body = failureResponse('Journal entry not found')
+      return;
+    }
+
+    ctx.body = successResponse('success', { diary });
   } catch (error) {
     ctx.status = 500;
     ctx.body = failureResponse('An error occurred while fetching the journal entries.')
