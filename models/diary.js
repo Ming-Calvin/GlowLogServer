@@ -1,6 +1,18 @@
 'use strict';
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-  const Diary = sequelize.define('Diary', {
+  class Diary extends Model {
+    static associate(models) {
+      // 定义模型之间的关联
+      Diary.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'user'
+      });
+    }
+  }
+
+  Diary.init({
     diary_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -46,16 +58,11 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0,
     }
   }, {
+    sequelize,
+    modelName: 'Diary',
     tableName: 'diaries',
-    timestamps: false
+    timestamps: false,  // 禁用 Sequelize 自动添加的 createdAt 和 updatedAt 字段
   });
-
-  Diary.associate = function(models) {
-    Diary.belongsTo(models.User, {
-      foreignKey: 'user_id',
-      as: 'user'
-    });
-  };
 
   return Diary;
 };

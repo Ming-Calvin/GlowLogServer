@@ -1,6 +1,18 @@
 'use strict';
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-  const Comment = sequelize.define('Comment', {
+  class Comment extends Model {
+    static associate(models) {
+      // 定义模型之间的关联
+      Comment.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'user'
+      });
+    }
+  }
+
+  Comment.init({
     comment_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -37,16 +49,11 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
     }
   }, {
+    sequelize,
+    modelName: 'Comment',
     tableName: 'comments',
-    timestamps: false
+    timestamps: false,  // 禁用 Sequelize 自动添加的 createdAt 和 updatedAt 字段
   });
-
-  Comment.associate = function(models) {
-    Comment.belongsTo(models.User, {
-      foreignKey: 'user_id',
-      as: 'user'
-    });
-  };
 
   return Comment;
 };

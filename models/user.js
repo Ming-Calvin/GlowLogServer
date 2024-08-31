@@ -1,6 +1,15 @@
 'use strict';
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('User', {
+  class User extends Model {
+    static associate(models) {
+      // 在这里定义模型之间的关联，例如：
+      // User.hasMany(models.Post, { foreignKey: 'userId', as: 'posts' });
+    }
+  }
+
+  User.init({
     user_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -47,8 +56,10 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
     }
   }, {
+    sequelize,
+    modelName: 'User',
     tableName: 'users',
-    timestamps: false
+    timestamps: false, // 禁用 Sequelize 自动添加的 createdAt 和 updatedAt 字段
   });
 
   return User;

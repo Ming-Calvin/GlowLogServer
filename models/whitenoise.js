@@ -1,6 +1,15 @@
 'use strict';
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-  const WhiteNoise = sequelize.define('WhiteNoise', {
+  class WhiteNoise extends Model {
+    // 可以在这里定义模型之间的关联
+    static associate(models) {
+      // 例如：WhiteNoise.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+    }
+  }
+
+  WhiteNoise.init({
     white_noise_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -33,8 +42,10 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
     }
   }, {
+    sequelize,
+    modelName: 'WhiteNoise',
     tableName: 'white_noises',
-    timestamps: false
+    timestamps: false,  // 禁用 Sequelize 自动添加的 createdAt 和 updatedAt 字段
   });
 
   return WhiteNoise;

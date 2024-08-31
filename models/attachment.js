@@ -1,6 +1,15 @@
 'use strict';
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-  const Attachment = sequelize.define('Attachment', {
+  class Attachment extends Model {
+    static associate(models) {
+      // 在这里定义与其他模型的关系（如果有）
+      // 例如：Attachment.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+    }
+  }
+
+  Attachment.init({
     attachment_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -25,8 +34,10 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
     }
   }, {
+    sequelize,
+    modelName: 'Attachment',
     tableName: 'attachments',
-    timestamps: false
+    timestamps: false, // 禁用 Sequelize 自动添加的 createdAt 和 updatedAt 字段
   });
 
   return Attachment;
