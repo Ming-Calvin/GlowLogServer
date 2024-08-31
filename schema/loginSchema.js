@@ -7,4 +7,20 @@ const sendVerificationCodeSchema = Joi.object({
   email: validations.email
 })
 
-module.exports = { sendVerificationCodeSchema }
+// 注册参数
+const registrationSchema = Joi.object({
+  code: validations.require,
+  username: validations.shortString,
+  email: validations.email,
+  password: validations.password
+})
+
+// 登录参数
+const loginSchema = Joi.object({
+  email: validations.email,
+  password: validations.require
+})
+
+
+
+module.exports = { sendVerificationCodeSchema, registrationSchema, loginSchema }
