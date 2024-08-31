@@ -3,7 +3,7 @@ const Router = require('koa-router')
 const router = new Router()
 // 校验
 const {validate} = require("../middlewares/validation");
-const {addDiarySchema, getDiaryDatesByMonthSchema} = require("../schema/diarySchema");
+const {addDiarySchema, getDiaryDatesByMonthSchema, getDiaryEntriesByDateSchema} = require("../schema/diarySchema");
 // token校验
 const authMiddleware = require("../middlewares/auth");
 // 数据库
@@ -122,31 +122,38 @@ router.get('/getDiaryDatesByMonth', authMiddleware, validate(getDiaryDatesByMont
     ctx.body = successResponse('success', dates);
   } catch (error) {
     ctx.status = 500;
-    ctx.body = { message: 'An error occurred while fetching the journal entries.', error };
+    ctx.body = failureResponse('An error occurred while fetching the journal entries.')
   }
 });
 
-// 根据月份查询当月有日记的日期接口
-router.get('/getDiaryEntriesByDate', authMiddleware, validate(getDiaryDatesByMonthSchema), async (ctx) => {
+// 根据选中日期获取此日期所有的日记列表接口
+router.get('/getDiaryEntriesByDate', authMiddleware, validate(getDiaryEntriesByDateSchema), async (ctx) => {
   try {
     const userId = ctx.state.user.userId;
     const { startDate, endDate } = ctx.request.validatedBody;
 
-    let where = { user_id };
+    const diaryDates = await Diary.findAll({
+      where: {
+        user_id: userId,
+        created_at: {
+          // 设置时间为00：00：00
+          [Op.gte]: new Date(startDate).setUTCHours(0, 0, 0, 0),
+          // 设置时间为23：59：59
+          [Op.lt]: new Date(endDate).setUTCHours(23, 59, 59, 999)
+        }
+      },
+      // 只提取created_at
+      attributes: ['title'],
+    })
 
-    if (startDate && endDate) {
-      where.createdAt = {
-        [Op.gte]: new Date(startDate),
-        [Op.lt]: new Date(endDate)
-      };
-    }
+    const title =  diaryDates.map(diary => diary.title)
 
-    const journals = await Journal.findAll({ where });
+    console.log(title)
 
-    ctx.body = { code: 200, data: journals};
+    ctx.body = successResponse('success', { title });
   } catch (error) {
     ctx.status = 500;
-    ctx.body = { message: 'An error occurred while fetching the journal entries.', error };
+    ctx.body = failureResponse('An error occurred while fetching the journal entries.')
   }
 });
 

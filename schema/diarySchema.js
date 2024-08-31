@@ -14,5 +14,11 @@ const getDiaryDatesByMonthSchema = Joi.object({
   date: validations.date,
 })
 
+// 根据月份查询当月有日记的日期参数
+const getDiaryEntriesByDateSchema = Joi.object({
+  startDate: validations.date,
+  endDate: validations.date,
+})
 
-module.exports = { addDiarySchema , getDiaryDatesByMonthSchema}
+
+module.exports = { addDiarySchema , getDiaryDatesByMonthSchema, getDiaryEntriesByDateSchema}
