@@ -10,7 +10,7 @@ function successResponse(message, data) {
 }
 
 // error response format
-function FailureResponse(message, err, errCode) {
+function failureResponse(message, err, errCode) {
   return {
     status: errCode || 500,
     body: {
@@ -23,4 +23,4 @@ function FailureResponse(message, err, errCode) {
   }
 }
 
-module.exports = { successResponse, FailureResponse }
+module.exports = { successResponse, failureResponse }
