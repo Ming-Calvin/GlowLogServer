@@ -14,6 +14,7 @@ const upload = require("../middlewares/upload");
 const {successResponse, failureResponse} = require("../until/responseData");
 const path = require("path");
 
+// 上传白噪音列表接口
 router.post('/uploadWhiteNoise',
   authMiddleware,
   upload.single('file'),
@@ -70,6 +71,26 @@ router.post('/uploadWhiteNoise',
     ctx.body = failureResponse('An error occurred while creating the journal entry.')
   }
 })
+
+// 获取白噪音列表接口
+router.get('/getWhiteNoiseList',authMiddleware, async (ctx, next) => {
+  try {
+    const whiteNoise = await WhiteNoise.findAll();
+
+    if (!whiteNoise) {
+      ctx.status = 404;
+      ctx.body = failureResponse('WhiteNoise entry not found')
+      return;
+    }
+
+    ctx.body = successResponse('success', { whiteNoise });
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = failureResponse('An error occurred while fetching the WhiteNoise entries.')
+  }
+})
+
+
 
 // 根据白噪音ID获取白噪音内容接口
 router.get('/getWhiteNoiseById/:id',authMiddleware, async (ctx, next) => {
