@@ -7,7 +7,7 @@ const {uploadWhiteNoise} = require("../schema/whiteNoiseSchema");
 // token校验
 const authMiddleware = require("../middlewares/auth");
 // 数据库
-const { WhiteNoise, Attachment, sequelize } = require("../models");
+const { WhiteNoise, Attachment, sequelize} = require("../models");
 // 上传中间件
 const upload = require("../middlewares/upload");
 // 返回数据
@@ -71,21 +71,26 @@ router.post('/uploadWhiteNoise',
   }
 })
 
-async function getAudioDuration(filePath) {
+// 根据白噪音ID获取白噪音内容接口
+router.get('/getWhiteNoiseById/:id',authMiddleware, async (ctx, next) => {
   try {
-    // 读取文件为 Buffer
-    const audioData = fs.readFileSync(filePath);
-    // 使用 audio-decode 解析 Buffer
-    const audioBuffer = await audioDecode(audioData);
-    // 获取音频时长
-    const duration = audioBuffer.duration;
-    console.log('Audio duration:', duration, 'seconds');
-    return duration;
-  } catch (e) {
-    console.error('Error loading or decoding audio file:', e.message);
-    throw e;
+    const id = ctx.params.id;
+    const whiteNoise = await WhiteNoise.findByPk(id);
+
+    if (!whiteNoise) {
+      ctx.status = 404;
+      ctx.body = failureResponse('WhiteNoise entry not found')
+      return;
+    }
+
+    const file = await Attachment.findByPk(whiteNoise.white_noise_id)
+
+    ctx.body = successResponse('success', { whiteNoise, file });
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = failureResponse('An error occurred while fetching the WhiteNoise entries.')
   }
-}
+})
 
 
 module.exports = router;
