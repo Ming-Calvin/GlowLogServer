@@ -8,5 +8,10 @@ const updatePasswordSchema = Joi.object({
   code: validations.require
 })
 
+// 删除账号参数
+const deleteAccountSchema = Joi.object({
+  code: validations.require
+})
 
-module.exports = { updatePasswordSchema }
+
+module.exports = { deleteAccountSchema }

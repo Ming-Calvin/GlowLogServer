@@ -3,7 +3,7 @@ const Router = require('koa-router')
 const router = new Router()
 // 校验
 const {validate} = require("../middlewares/validation");
-const { updatePasswordSchema } = require("../schema/userSchema");
+const { updatePasswordSchema , deleteAccountSchema} = require("../schema/userSchema");
 // 加密
 const bcrypt = require('bcrypt')
 // 数据库
@@ -133,6 +133,60 @@ router.put('/updatePassword', authMiddleware, validate(updatePasswordSchema), as
   }
 })
 
+// 删除账号接口
+router.delete('/deleteAccount', authMiddleware, validate(deleteAccountSchema), async (ctx) => {
+  const userId = ctx.state.user.userId;
+  const { code } = ctx.request.validatedBody;
+
+  // 开始事务
+  const transaction = await sequelize.transaction();
+
+  try {
+    // 查找用户
+    const user = await User.findOne({ where: { user_id: userId }, transaction });
+
+    if (!user) {
+      ctx.status = 404;
+      ctx.body = failureResponse('User not found');
+      await transaction.rollback();
+      return;
+    }
+
+    // 验证验证码
+    const verification = await VerificationCode.findOne({
+      where: {
+        email: user.email,
+        code,
+        expires_at: {
+          [Op.gt]: new Date() // 验证码尚未过期
+        }
+      },
+      order: [['created_at', 'DESC']],
+      transaction
+    });
+
+    if (!verification) {
+      ctx.status = 400;
+      ctx.body = failureResponse('Invalid or expired verification code');
+      await transaction.rollback();
+      return;
+    }
+
+    // 删除用户和相关数据
+    await User.destroy({ where: { user_id: userId }, transaction });
+
+    // 提交事务
+    await transaction.commit();
+
+    ctx.body = successResponse('Account deleted successfully');
+  } catch (error) {
+    // 如果发生错误，回滚事务
+    await transaction.rollback();
+
+    ctx.status = 500;
+    ctx.body = failureResponse('An error occurred while deleting the account');
+  }
+});
 
 module.exports = router;
 
