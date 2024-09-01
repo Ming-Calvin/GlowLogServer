@@ -18,7 +18,7 @@ module.exports = async (ctx, next) => {
     ctx.state.user  = decoded;
 
     // 正确处理异步操作
-    await next();
+    return next();
   } catch (error) {
     ctx.status = 401;
 

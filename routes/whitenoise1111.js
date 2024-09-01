@@ -1,6 +1,6 @@
 const Router = require('koa-router')
 const router = new Router()
-const { WhiteNoise } = require('../models')
+const { WhiteNoise: Whitenoise1111 } = require('../models')
 const authMiddleware = require('../middlewares/auth')
 const upload  = require('../middlewares/upload')
 const path = require('path')
@@ -8,7 +8,7 @@ const path = require('path')
 // get the list of available white noises
 router.get('/white-noises', authMiddleware, async (ctx) => {
   try {
-    const whiteNoises = await WhiteNoise.findAll();
+    const whiteNoises = await Whitenoise1111.findAll();
     ctx.body = { whiteNoises, code: 200 }
   } catch (error) {
     ctx.staus = 500;
@@ -32,7 +32,7 @@ router.post('/white-noises/upload', upload.single('file'), async (ctx) => {
     const fileName = path.basename(file.path)
     const fileUrl = `${ ctx.origin }/files/${ fileName }`
 
-    const newWhiteNoise = await WhiteNoise.create({
+    const newWhiteNoise = await Whitenoise1111.create({
       name: name,
       url: fileUrl
     })
@@ -47,7 +47,7 @@ router.post('/white-noises/upload', upload.single('file'), async (ctx) => {
 router.get('/getWhiteNoise/:id',authMiddleware, async (ctx) => {
   try {
     const whiteNoiseId = ctx.params.id
-    const whiteNoise = await WhiteNoise.findByPk(whiteNoiseId)
+    const whiteNoise = await Whitenoise1111.findByPk(whiteNoiseId)
 
     if(!whiteNoise) {
       ctx.staus = 404
