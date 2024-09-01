@@ -4,6 +4,7 @@ const router = new Router()
 const loginRouter = require("./Login");
 const diaryRouter = require("./Diary");
 const whitenoiseRouter = require("./Whitenoise");
+const userRouter = require("./User");
 
 
 // const usersRouter = require('./user');
@@ -22,6 +23,8 @@ router.use(loginRouter.routes())
 router.use(diaryRouter.routes())
 // 白噪音路由
 router.use(whitenoiseRouter.routes())
+// 用户路由
+router.use(userRouter.routes())
 
 // // Use users routes
 // router.use(usersRouter.routes())
