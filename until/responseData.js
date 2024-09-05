@@ -1,7 +1,7 @@
 // success response format
 function successResponse(message, data) {
   return {
-    status: 200,
+    code: 200,
     message,
     data: {
       ...data
@@ -12,13 +12,10 @@ function successResponse(message, data) {
 // error response format
 function failureResponse(message, err, errCode) {
   return {
-    status: errCode || 500,
-    body: {
-      status: errCode || 500,
-      message,
-      err: {
-        ...err
-      }
+    code: errCode || 500,
+    message,
+    err: {
+      ...err
     }
   }
 }
