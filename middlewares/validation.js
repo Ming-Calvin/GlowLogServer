@@ -4,7 +4,7 @@ const {failureResponse} = require("../until/responseData");
 
 const validate = (schema) => {
   return async (ctx, next) => {
-    const { error, value } = schema.validate(ctx.request.body, { abortEarly: false })
+    const { error, value } = schema.validate({ ...ctx.request.query, ...ctx.request.body }, { abortEarly: false })
 
     if(error) {
       ctx.status = 400;
