@@ -20,7 +20,7 @@ router.get('/getUserInfo', authMiddleware, async (ctx) => {
   try {
     const userId = ctx.state.user.userId;
 
-    const usrInfo = await User.findAll({
+    const userInfo = await User.findAll({
       where: {
         user_id: userId
       },
@@ -33,7 +33,7 @@ router.get('/getUserInfo', authMiddleware, async (ctx) => {
       return;
     }
 
-    ctx.body = successResponse('User information fetched successfully', usrInfo);
+    ctx.body = successResponse('User information fetched successfully', userInfo);
   } catch (e) {
     ctx.status = 500;
     ctx.body = failureResponse('An error occurred while fetching the User entries.')
