@@ -96,7 +96,18 @@ router.get('/getWhiteNoiseList',authMiddleware, async (ctx, next) => {
 router.get('/getWhiteNoiseById/:id',authMiddleware, async (ctx, next) => {
   try {
     const id = ctx.params.id;
-    const whiteNoise = await WhiteNoise.findByPk(id);
+    const whiteNoise = await WhiteNoise.findByPk(id, {
+      include: [
+        {
+          model: Attachment,
+          as: 'attachments',  // 如果在模型定义中使用了别名
+          where: {
+            business_type: 'whiteNoise'  // 确保业务类型是 'whiteNoise'
+          },
+          required: false  // 使用左连接，允许没有附件的情况
+        }
+      ]
+    });
 
     if (!whiteNoise) {
       ctx.status = 404;
@@ -104,9 +115,9 @@ router.get('/getWhiteNoiseById/:id',authMiddleware, async (ctx, next) => {
       return;
     }
 
-    const file = await Attachment.findByPk(whiteNoise.white_noise_id)
+    // const file = await Attachment.findByPk(whiteNoise.white_noise_id)
 
-    ctx.body = successResponse('success', { whiteNoise, file });
+    ctx.body = successResponse('success', { whiteNoise });
   } catch (error) {
     ctx.status = 500;
     ctx.body = failureResponse('An error occurred while fetching the WhiteNoise entries.')

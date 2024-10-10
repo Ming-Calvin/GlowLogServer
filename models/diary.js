@@ -9,6 +9,16 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_id',
         as: 'user'
       });
+
+      // 定义与附件的关联
+      Diary.hasMany(models.Attachment, {
+        foreignKey: 'business_id',
+        as: 'attachments',
+        constraints: false, // 禁用外键约束
+        scope: {
+          business_type: 'diary' // 限制业务类型为 'diary'
+        }
+      });
     }
   }
 

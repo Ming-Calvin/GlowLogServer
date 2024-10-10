@@ -35,6 +35,8 @@ router.post('/addDiaryEntry',
   // 开始事务
   const transaction = await sequelize.transaction()
 
+    console.log(title, mood, content)
+
   try {
     // 获取user信息
     const user = await User.findOne({
@@ -119,7 +121,7 @@ router.get('/getDiaryDatesByMonth', authMiddleware, validate(getDiaryDatesByMont
 
     const dates =  Array.from(new Set(diaryDates.map(diary => diary.created_at.toISOString().split('T')[0])))
 
-    ctx.body = successResponse('success', dates);
+    ctx.body = successResponse('success', {diaryList: dates});
   } catch (error) {
     ctx.status = 500;
     ctx.body = failureResponse('An error occurred while fetching the journal entries.')
@@ -164,7 +166,18 @@ router.get('/getDiaryEntriesByDate', authMiddleware, validate(getDiaryEntriesByD
 router.get('/getDiaryEntryById/:id', authMiddleware, async (ctx) => {
   try {
     const id = ctx.params.id;
-    const diary = await Diary.findByPk(id);
+    const diary = await Diary.findByPk(id, {
+      include: [
+        {
+          model: Attachment,
+          as: 'attachments',  // 如果在模型定义中使用了别名
+          where: {
+            business_type: 'diary'  // 确保业务类型是 'diary'
+          },
+          required: false  // 使用左连接，允许没有附件的情况
+        }
+      ]
+    });
 
     if (!diary) {
       ctx.status = 404;

@@ -5,7 +5,23 @@ module.exports = (sequelize, DataTypes) => {
   class Attachment extends Model {
     static associate(models) {
       // 在这里定义与其他模型的关系（如果有）
-      // 例如：Attachment.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+      Attachment.belongsTo(models.Diary, {
+        foreignKey: 'business_id',
+        as: 'diary',
+        constraints: false, // 禁用外键约束，因为关联是通过非标准外键字段
+        scope: {
+          business_type: 'daily' // 限制业务类型为 'daily'
+        }
+      })
+
+      Attachment.belongsTo(models.Diary, {
+        foreignKey: 'business_id',
+        as: 'whiteNoise',
+        constraints: false, // 禁用外键约束，因为关联是通过非标准外键字段
+        scope: {
+          business_type: 'whiteNoise' // 限制业务类型为 'whiteNoise'
+        }
+      })
     }
   }
 

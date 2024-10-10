@@ -5,7 +5,15 @@ module.exports = (sequelize, DataTypes) => {
   class WhiteNoise extends Model {
     // 可以在这里定义模型之间的关联
     static associate(models) {
-      // 例如：WhiteNoise.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+      // 定义与附件的关联
+      WhiteNoise.hasMany(models.Attachment, {
+        foreignKey: 'business_id',
+        as: 'attachments',
+        constraints: false, // 禁用外键约束
+        scope: {
+          business_type: 'whiteNoise' // 限制业务类型为 'diary'
+        }
+      });
     }
   }
 
