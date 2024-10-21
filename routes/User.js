@@ -165,12 +165,12 @@ router.delete('/deleteAccount', authMiddleware, validate(deleteAccountSchema), a
       transaction
     });
 
-    if (!verification) {
-      ctx.status = 400;
-      ctx.body = failureResponse('Invalid or expired verification code');
-      await transaction.rollback();
-      return;
-    }
+    // if (!verification) {
+    //   ctx.status = 400;
+    //   ctx.body = failureResponse('Invalid or expired verification code');
+    //   await transaction.rollback();
+    //   return;
+    // }
 
     // 删除用户和相关数据
     await User.destroy({ where: { user_id: userId }, transaction });
